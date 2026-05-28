@@ -6,6 +6,10 @@ A premium, open-source Google Sheets Add-on that lets you send personalized mass
 
 - **Native Gmail Integration:** Uses your existing Gmail Drafts as beautiful HTML email templates.
 - **Dynamic Variables:** Automatically detects variables like `{{Name}}` or `{{Company}}` in your drafts and replaces them with data from your sheet.
+- **Dynamic CC & BCC:** Add `CC` or `BCC` columns to your sheet to send dynamic carbon copies.
+- **Dynamic Attachments:** Add an `Attachment` column with Google Drive links to automatically attach unique files for each recipient!
+- **Scheduled Sending (Send Later):** Pick a date and time, and the script will automatically send your emails in the background.
+- **Analytics Dashboard:** Built-in donut charts to see your exact Sent, Opened, Replied, and Bounced percentages in real-time.
 - **Open Tracking:** Built-in invisible tracking pixel to see exactly when recipients open your emails.
 - **Bounce & Reply Sync:** Fast inbox scanner that detects if an email bounced or was replied to, syncing the status right back to your spreadsheet.
 - **Privacy First:** The script runs entirely inside your own Google Account. No third-party servers, no data sharing.

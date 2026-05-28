@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #0f172a;
+        --surface: rgba(255, 255, 255, 0.05);
+        --surface-border: rgba(255, 255, 255, 0.1);
+        --primary: #6366f1;
+        --primary-hover: #4f46e5;
+        --text: #f8fafc;
+        --text-muted: #94a3b8;
+        --error: #ef4444;
+        --success: #10b981;
+      }
+      
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text);
+      }
+      
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 0;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      h2 span {
+        color: var(--primary);
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      select {
+        width: 100%;
+        background: rgba(0,0,0,0.2);
+        border: 1px solid var(--surface-border);
+        border-radius: 8px;
+        padding: 10px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s;
+        appearance: none;
+      }
+      
+      select:focus {
+        border-color: var(--primary);
+      }
+      select option {
+        background-color: var(--bg-color);
+      }
+      
+      input[type="text"] {
+        background: rgba(0,0,0,0.2);
+        border: 1px solid var(--surface-border);
+        border-radius: 8px;
+        color: var(--text);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      input[type="text"]:focus {
+        border-color: var(--primary);
+      }
+
+      .toggle-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--surface-border);
+      }
+      .toggle-container label { margin-bottom: 0; cursor: pointer; color: var(--text); }
+      
+      button {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      button:hover:not(:disabled) {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--surface-border);
+        margin-top: 10px;
+      }
+      .btn-secondary:hover:not(:disabled) {
+        background: rgba(255,255,255,0.1);
+        box-shadow: none;
+      }
+
+      .variables {
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: #cbd5e1;
+        background: rgba(0,0,0,0.2);
+        padding: 8px;
+        border-radius: 6px;
+        word-break: break-all;
+      }
+
+      .status {
+        margin-top: 12px;
+        font-size: 0.85rem;
+        text-align: center;
+        min-height: 20px;
+        padding: 8px;
+        border-radius: 6px;
+      }
+      .status.error { color: var(--error); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
+      .status.success { color: var(--success); background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
+      .status.loading { color: var(--text-muted); }
+
+      /* Loader */
+      .loader {
+        border: 3px solid var(--surface-border);
+        border-top: 3px solid white;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .hidden { display: none !important; }
+      .custom-select-wrapper { position: relative; }
+      .custom-select-wrapper::after {
+        content: '▼'; font-size: 0.7rem; color: var(--text-muted);
+        position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Mail Merge <span>Pro</span></h2>
+
+    <div class="card">
+      <label>Variables Found in Sheet</label>
+      <div id="variablesList" class="variables">Loading...</div>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; margin-bottom: 0;">
+        Use these variables in your Gmail draft (e.g. {{Name}}).
+      </p>
+    </div>
+
+    <div class="card">
+      <label for="draftSelect">Select Gmail Draft Template</label>
+      <div class="custom-select-wrapper">
+        <select id="draftSelect">
+          <option value="">Loading drafts...</option>
+        </select>
+      </div>
+
+      <div id="senderNameContainer" style="margin-top: 12px; border-top: 1px solid var(--surface-border); padding-top: 12px;">
+        <label for="senderName">Sender Name</label>
+        <input type="text" id="senderName" placeholder="Your Name" style="width: 100%; box-sizing: border-box; padding: 8px; font-size: 0.8rem; margin-top: 4px;">
+      </div>
+      
+      <div class="toggle-container">
+        <label for="trackOpen">Enable Open Tracking</label>
+        <input type="checkbox" id="trackOpen" checked>
+      </div>
+      
+      <div id="webAppUrlContainer" style="margin-top: 12px; border-top: 1px solid var(--surface-border); padding-top: 12px;">
+        <label for="webAppUrl">Web App URL (for tracking)</label>
+        <input type="text" id="webAppUrl" placeholder="https://script.google.com/macros/s/.../exec" style="width: 100%; box-sizing: border-box; padding: 8px; font-size: 0.8rem; margin-top: 4px;">
+        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Paste the URL you got from 'Deploy as Web app' here.</p>
+      </div>
+    </div>
+
+    <button id="sendBtn" disabled>Start Mail Merge</button>
+    <button id="syncBtn" class="btn-secondary">🔄 Sync Replies & Bounces</button>
+
+    <div id="statusMsg" class="status hidden"></div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        loadData();
+        document.getElementById('sendBtn').addEventListener('click', startMerge);
+        document.getElementById('syncBtn').addEventListener('click', syncTracking);
+        
+        const trackOpen = document.getElementById('trackOpen');
+        const webAppUrlContainer = document.getElementById('webAppUrlContainer');
+        trackOpen.addEventListener('change', function() {
+          webAppUrlContainer.style.display = this.checked ? 'block' : 'none';
+        });
+      });
+
+      function loadData() {
+        google.script.run
+          .withSuccessHandler(function(url) {
+            document.getElementById('webAppUrl').value = url || '';
+          })
+          .getWebAppUrl();
+
+        google.script.run
+          .withSuccessHandler(function(headers) {
+            const varsDiv = document.getElementById('variablesList');
+            if (headers.length > 0) {
+              varsDiv.innerHTML = headers.map(h => `{{${h}}}`).join(', ');
+            } else {
+              varsDiv.innerHTML = 'No columns found in sheet.';
+            }
+          })
+          .withFailureHandler(showError)
+          .getSheetHeaders();
+
+        google.script.run
+          .withSuccessHandler(function(drafts) {
+            const select = document.getElementById('draftSelect');
+            select.innerHTML = '';
+            if (drafts.length === 0) {
+              select.innerHTML = '<option value="">No drafts found in Gmail</option>';
+              return;
+            }
+            select.innerHTML = '<option value="">-- Choose a Draft --</option>';
+            drafts.forEach(draft => {
+              const opt = document.createElement('option');
+              opt.value = draft.id;
+              opt.textContent = draft.subject;
+              select.appendChild(opt);
+            });
+            select.addEventListener('change', function() {
+              document.getElementById('sendBtn').disabled = !this.value;
+            });
+          })
+          .withFailureHandler(showError)
+          .getGmailDrafts();
+      }
+
+      function startMerge() {
+        const draftId = document.getElementById('draftSelect').value;
+        const trackOpen = document.getElementById('trackOpen').checked;
+        const webAppUrl = document.getElementById('webAppUrl').value.trim();
+        const senderName = document.getElementById('senderName').value.trim();
+        
+        if (!draftId) return;
+
+        if (!senderName) {
+            showError({message: 'Please enter a Sender Name.'});
+            return;
+        }
+        
+        if (trackOpen && !webAppUrl) {
+            showError({message: 'Please paste your Web App URL to use open tracking, or disable tracking.'});
+            return;
+        }
+
+        if (trackOpen) {
+          google.script.run.saveWebAppUrl(webAppUrl);
+        }
+
+        const btn = document.getElementById('sendBtn');
+        const statusDiv = document.getElementById('statusMsg');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loader"></span> Sending...';
+        statusDiv.className = 'status loading';
+        statusDiv.innerText = 'Sending emails. Do not close this sidebar...';
+        statusDiv.classList.remove('hidden');
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            btn.innerHTML = 'Merge Complete!';
+            statusDiv.className = 'status success';
+            statusDiv.innerText = `Successfully sent ${result.count} emails! Check the "Merge Status" column in your sheet.`;
+            setTimeout(() => {
+              btn.innerHTML = 'Start Mail Merge';
+              btn.disabled = false;
+            }, 5000);
+          })
+          .withFailureHandler(function(error) {
+            showError(error);
+            btn.innerHTML = 'Start Mail Merge';
+            btn.disabled = false;
+          })
+          .sendMailMerge(draftId, trackOpen, senderName);
+      }
+
+      function syncTracking() {
+        const btn = document.getElementById('syncBtn');
+        const statusDiv = document.getElementById('statusMsg');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loader"></span> Syncing...';
+        statusDiv.className = 'status loading';
+        statusDiv.innerText = 'Scanning inbox for replies and bounces...';
+        statusDiv.classList.remove('hidden');
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            btn.innerHTML = '🔄 Sync Replies & Bounces';
+            btn.disabled = false;
+            statusDiv.className = 'status success';
+            statusDiv.innerText = `Sync complete! Updated ${result.updatedCount} rows.`;
+          })
+          .withFailureHandler(function(error) {
+            showError(error);
+            btn.innerHTML = '🔄 Sync Replies & Bounces';
+            btn.disabled = false;
+          })
+          .scanInboxForRepliesAndBounces();
+      }
+
+      function showError(error) {
+        const statusDiv = document.getElementById('statusMsg');
+        statusDiv.classList.remove('hidden');
+        statusDiv.className = 'status error';
+        statusDiv.innerText = error.message || error;
+      }
+    </script>
+  </body>
+</html>

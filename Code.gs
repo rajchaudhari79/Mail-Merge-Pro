@@ -18,11 +18,13 @@ function showSidebar() {
   SpreadsheetApp.getUi().showSidebar(html);
 }
 
+
+
 /**
  * Handles GET requests to the Web App for Open Tracking.
  */
 function doGet(e) {
-  if (e.parameter.action === 'open') {
+  if (e && e.parameter && e.parameter.action === 'open') {
     try {
       const sheetId = e.parameter.sheetId;
       const row = parseInt(e.parameter.row);
@@ -75,6 +77,8 @@ function getSheetHeaders() {
   if (data.length === 0) return [];
   return data[0].filter(String);
 }
+
+
 
 /**
  * Gets the Web App URL from User Properties (saved from Sidebar).
@@ -150,7 +154,7 @@ function sendMailMerge(config) {
 
   const webAppUrl = getWebAppUrl();
   if (config.enableTracking && !webAppUrl) {
-    throw new Error("You must set the Web App URL for Open Tracking.");
+    throw new Error("You must set the Tracking URL for Open Tracking.");
   }
 
   const headers = data[0];

@@ -255,9 +255,14 @@
         </div>
         
         <div id="webAppUrlContainer" style="margin-top: 12px; border-top: 1px solid var(--surface-border); padding-top: 12px;">
-          <label for="webAppUrl">Tracking Web App URL</label>
-          <input type="text" id="webAppUrl" placeholder="https://script.google.com/.../exec" style="padding: 8px; font-size: 0.8rem; margin-top: 4px;">
+          <label for="webAppUrl">Tracking Proxy URL <span style="color:var(--error);font-size:10px;">(DO NOT use script.google.com)</span></label>
+          <input type="text" id="webAppUrl" placeholder="https://track.yourdomain.com/" style="padding: 8px; font-size: 0.8rem; margin-top: 4px;">
+          <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">
+            Must be a custom domain proxy (e.g. Cloudflare Worker) to avoid Google phishing bans.
+          </p>
         </div>
+        
+
         
         <div class="schedule-container">
           <label for="scheduleTime">Schedule Send (Optional)</label>
@@ -318,6 +323,7 @@
         trackOpen.addEventListener('change', function() {
           webAppUrlContainer.style.display = this.checked ? 'block' : 'none';
         });
+
       });
 
       function loadData() {
@@ -374,7 +380,14 @@
         
         if (!draftId) return null;
         if (!senderName) { showError('Please enter a Sender Name.'); return null; }
-        if (trackOpen && !webAppUrl) { showError('Please paste your Web App URL to use tracking.'); return null; }
+        
+        if (trackOpen) {
+           if (!webAppUrl) { showError('Please paste your Tracking Proxy URL.'); return null; }
+           if (webAppUrl.toLowerCase().includes('script.google.com')) {
+              showError('Security Risk: Do NOT use a script.google.com URL directly or your account will be banned for phishing. Use a custom domain proxy.');
+              return null;
+           }
+        }
         
         return { draftId, enableTracking: trackOpen, webAppUrl, senderName };
       }
@@ -384,6 +397,8 @@
         if (!config) return;
 
         if (config.enableTracking) google.script.run.saveWebAppUrl(config.webAppUrl);
+
+
 
         const btn = document.getElementById(isScheduled ? 'scheduleBtn' : 'sendBtn');
         const statusDiv = document.getElementById('statusMsg');

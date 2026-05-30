@@ -36,12 +36,42 @@ Because this is a Google Apps Script project, installation is incredibly simple 
 
 ## 📈 Setting up Open Tracking (Optional)
 
-To track when people open your emails, you need to deploy the script as a Web App:
-1. In the Apps Script editor, click **Deploy > New deployment**.
-2. Select **Web app** from the gear icon.
-3. Set **Execute as** to `Me` and **Who has access** to `Anyone`.
-4. Click **Deploy** and copy the resulting Web App URL.
-5. Paste this URL into the tracking field in the Mail Merge Pro sidebar.
+> [!WARNING]
+> Do **NOT** use your raw `script.google.com` Web App URL for email tracking! Google's automated scanners will flag this as phishing and suspend your Google Cloud project. You must use a custom domain proxy.
+
+To safely track when people open your emails, set up a free Cloudflare Worker proxy:
+
+1. In the Apps Script editor, click **Deploy > New deployment**, select **Web app**, set execute as `Me` and access to `Anyone`. Copy the resulting Web App URL.
+2. Create a free account on [Cloudflare](https://dash.cloudflare.com) and go to **Workers & Pages > Create Worker**.
+3. Name it (e.g. `mail-tracker`) and click **Deploy**.
+4. Click **Edit code** and paste the following proxy code, replacing the `GOOGLE_SCRIPT_URL` with your actual Web App URL from step 1:
+
+```javascript
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_URL_HERE/exec";
+    
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL + url.search);
+      return new Response(response.body, {
+        status: response.status,
+        headers: {
+          "Content-Type": "image/svg+xml",
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        }
+      });
+    } catch (e) {
+      return new Response('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>', {
+        status: 200,
+        headers: { "Content-Type": "image/svg+xml" }
+      });
+    }
+  }
+};
+```
+5. Click **Deploy**. Cloudflare will give you a worker URL (like `https://mail-tracker.username.workers.dev`).
+6. Paste **this Cloudflare URL** into the tracking field in the Mail Merge Pro sidebar.
 
 ## 📄 License
 
